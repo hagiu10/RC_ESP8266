@@ -35,6 +35,27 @@ def build_cmd():
         print(f"Core installation failed for {board_core}")
         print(result.stderr)
         return
+    # Command to install the libraries
+    libraries = ["WebSockets"]
+    for lib in libraries:
+        command = [path_arduino_exe,
+                   "lib",
+                   "--config-file", path_config_file,
+                    "install",
+                    lib
+                    ]
+        result = subprocess.run(command, shell=True, 
+                                stdout = subprocess.PIPE,
+                                text=True,
+                                check=True, 
+                                encoding="utf-8")
+        print(f"Stdout:\n{result.stdout}")
+        if result.returncode == 0:
+            print(f"Succesfully installed library {lib}\n")
+        else:
+            print(f"Library installation failed for {lib}")
+            print(result.stderr)
+            return
 
     # Command to build the project
     command = [path_arduino_exe, 
