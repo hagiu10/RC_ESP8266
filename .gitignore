@@ -2,3 +2,5 @@
 workspace/
 __pycache__/
 bin/
+WebSockets/
+.vscode/
