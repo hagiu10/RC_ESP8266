@@ -18,7 +18,7 @@ void webServer::init(void) {
         Serial.print("WiFi soft access point failed\n");
     }
 #endif
-    IPAddress local_IP(192, 168, 1, 1);  // Set your desired IP address
+    IPAddress local_IP(192, 168, 0, 10);  // Set your desired IP address
     IPAddress gateway(192, 168, 1, 1);
     IPAddress subnet(255, 255, 255, 0);
     result = WiFi.softAPConfig(local_IP, gateway, subnet);
@@ -60,11 +60,16 @@ void webSocket::init(void) {
     socket.onEvent([this](uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
         this->event(num, type, payload, length);
     });
+#ifdef DEBUG
+    Serial.print("WebSocket server is running\n");
+#endif
 }
 /** Handle the WebSocket event
  */
 void webSocket::event(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-    String message = " ";
+    String message = "...";
+    String text;
+    String echoMessage;
     switch (type) {
         case WStype_DISCONNECTED:
           message = "Disconnected!";
@@ -74,14 +79,19 @@ void webSocket::event(uint8_t num, WStype_t type, uint8_t* payload, size_t lengt
           break;
         case WStype_TEXT:
           message = "Received: ";
-          String text = String((char*)payload);
-          String echoMessage = "Receive: " + String((char*)payload);
+          text = String((char*)payload);
+          echoMessage = "Receive: " + String((char*)payload);
           socket.sendTXT(num, echoMessage);
+          break;
+        default:
+          message = "Unknown event type!";
           break;
       }
 #ifdef DEBUG
-    Serial.print("WebSocket event: ");  
-    Serial.printf("[%s] %s %s \n", num, message, String((char*)payload));
+    Serial.print("\nWebSocket event: ");
+    if (payload != nullptr) {
+        Serial.printf("\n\t- %s %s", message, String((char*)payload));
+    }
 #endif
 }
 /** Handle the WebSocket event
