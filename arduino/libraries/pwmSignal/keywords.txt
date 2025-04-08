@@ -1,0 +1,6 @@
+pwmSignal KEYWORD1
+init KEYWORD2
+setDutyCycle KEYWORD2
+getDutyCycle KEYWORD2
+pwmHandler KEYWORD2
+testDutyCycle KEYWORD2

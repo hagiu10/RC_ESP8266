@@ -1,0 +1,4 @@
+ledControl KEYWORD1
+init KEYWORD2
+setLed KEYWORD2
+testLeds KEYWORD2

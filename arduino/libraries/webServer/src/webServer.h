@@ -1,32 +1,23 @@
 #ifndef WEB_SERVER_H
 #define WEB_SERVER_H
 
+#include <commonLibs.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-#include <WebSocketsServer.h>
-#include <webPage.h>
+#include "../utils/webPage.h"
 
-#define DEBUG
+
+extern ESP8266WebServer server;  // Create an instance of the ESP8266WebServer class
 
 // Function prototypes
 class webServer {
+  private:
+    //ESP8266WebServer server;  // Create an instance of the ESP8266WebServer class
+    static webServer* _getInstance(void);
   public:
     webServer();
     void init(void);
     void loadWebPage(void);
-    void handleClient(void);
-
-  private:
-    ESP8266WebServer server;  // Create an instance of the ESP8266WebServer class
-};
-class webSocket {
-  public:
-    webSocket();
-    void init(void);
-    void event(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
-    void loop(void);
-
-  private:
-    WebSocketsServer socket; // Create an instance of the WebSocketsServer class
+    static void webServerHandler(void);
 };
 #endif // WEB_SERVER_H
