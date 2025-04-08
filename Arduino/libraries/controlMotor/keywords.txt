@@ -1,7 +1,0 @@
-controlMotor KEYWORD1
-init KEYWORD2
-frontLeft KEYWORD2
-frontRight KEYWORD2
-backLeft KEYWORD2
-backRight KEYWORD2
-breakAll KEYWORD2

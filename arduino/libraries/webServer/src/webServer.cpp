@@ -1,11 +1,11 @@
-// Include Arduino.h files in the header file for importing the Arduino library functions.
-#include <Arduino.h>
-#include "webServer.h"
+#include <webServer.h>
+
+ESP8266WebServer server = ESP8266WebServer(80);  // Create an instance of the ESP8266WebServer class
 
 /** Constructor
  */
-webServer::webServer(): server(80) {
-    // server = new AsyncWebServer(80);  // Port 80 is the default port for HTTP
+webServer::webServer(){
+    // server = new ESP8266WebServer(80);  // Port 80 is the default port for HTTP
 }
 /** Initialize the web server
  */
@@ -13,9 +13,9 @@ void webServer::init(void) {
     boolean result =  WiFi.softAP("ESP8266", "123456789");
 #ifdef DEBUG
     if (result) {
-        Serial.print("\nWiFi soft access point is running\n");
+        Serial.printf("webServer::init - WiFi soft access point is running. [%lu ms]\n", millis());
     } else {
-        Serial.print("WiFi soft access point failed\n");
+        Serial.printf("webServer::init - WiFi soft access point failed. [%lu ms]\n", millis());
     }
 #endif
     IPAddress local_IP(192, 168, 0, 10);  // Set your desired IP address
@@ -24,9 +24,9 @@ void webServer::init(void) {
     result = WiFi.softAPConfig(local_IP, gateway, subnet);
 #ifdef DEBUG
     if (result) {
-        Serial.println("AP Config Success");
+        Serial.printf("webServer::init - AP Config Success. [%lu ms]\n", millis());
     } else {
-        Serial.println("AP Config Failed");
+        Serial.printf("webServer::init - AP Config Failed. [%lu ms]\n", millis());
     }
 #endif
 }
@@ -39,63 +39,20 @@ void webServer::loadWebPage(void) {
     });
     server.begin(); 
 #ifdef DEBUG
-    Serial.print("Web server is running\n");
+    Serial.printf("webServer::loadWebPage - Web server is running. [%lu ms]\n", millis());
 #endif
 }
 /** Handle the client request
  */
-void webServer::handleClient(void) {
+void webServer::webServerHandler(void) {
     server.handleClient();
-}
-/** Constructor
- */
-webSocket::webSocket(): socket(81) {
-    // socket = new WebSocketsServer(81);  // Port 81 is the default port for WebSockets
-}
-/** Initialize the web socket
- */
-void webSocket::init(void) {
-    // Initialize WebSocket server
-    socket.begin();
-    socket.onEvent([this](uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-        this->event(num, type, payload, length);
-    });
 #ifdef DEBUG
-    Serial.print("WebSocket server is running\n");
+   // Serial.printf("webServer::webServerHandler - webServer handleClient. [%lu ms]\n", millis());
 #endif
 }
-/** Handle the WebSocket event
+/** Get the instance of the web server
  */
-void webSocket::event(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-    String message = "...";
-    String text;
-    String echoMessage;
-    switch (type) {
-        case WStype_DISCONNECTED:
-          message = "Disconnected!";
-          break;
-        case WStype_CONNECTED:
-          message = "Connected!";
-          break;
-        case WStype_TEXT:
-          message = "Received: ";
-          text = String((char*)payload);
-          echoMessage = "Receive: " + String((char*)payload);
-          socket.sendTXT(num, echoMessage);
-          break;
-        default:
-          message = "Unknown event type!";
-          break;
-      }
-#ifdef DEBUG
-    Serial.print("\nWebSocket event: ");
-    if (payload != nullptr) {
-        Serial.printf("\n\t- %s %s", message, String((char*)payload));
-    }
-#endif
-}
-/** Handle the WebSocket event
- */
-void webSocket::loop(void) {
-    socket.loop();
+webServer* webServer::_getInstance(void) {
+    static webServer instance;
+    return &instance;
 }

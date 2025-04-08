@@ -1,6 +1,4 @@
-// Include Arduino.h files in the header file for importing the Arduino library functions.
-#include <Arduino.h>
-#include <SN74HC595N.h>
+#include <sn74hc595n.h>
 
 // Define global variables for the shift register
 uint8_t SN74HC595N_REG = 0x00; // Initialize the shift register state to 0x00
@@ -19,19 +17,24 @@ void sn74hc595n::init(void) {
     pinMode(D0, OUTPUT);  // sets the pin D0 as output
     pinMode(RX, OUTPUT);  // sets the pin RX as output
     pinMode(TX, OUTPUT);  // sets the pin TX as output
-    serWriteReg(SN74HC595N_REG);  // clear the shift register, set all the pins to low
+    _serWriteReg(SN74HC595N_REG);  // write the data to the register
 #ifdef DEBUG
     // Serial port for debugging purposes
     Serial.begin(115200);
+    Serial.printf("sn74hc595n::init Initialized. [%lu ms]\n", millis());
 #endif
 }
 /** Transfer data serial to register of integrated circuit SN74HC595N
  * This function writes data to the register.
  * @param data The data to be write to the register.
  */
-void sn74hc595n::serWriteReg(uint8_t data) {
+void sn74hc595n::_serWriteReg(uint8_t data) {
 #ifdef DEBUG
-    delay(100);  // delay for 100ms to allow the serial UART to finish sending data
+    // Wait until all data is sent to the serial port
+    while (Serial.availableForWrite() < UART_TX_FIFO_SIZE) {
+        // Wait until there is enough space in the buffer to send data
+        ets_delay_us(100);  // Small delay to avoid busy-waiting
+    }
     pinMode(RX, OUTPUT);  // sets the pin RX as output
     pinMode(TX, OUTPUT);  // sets the pin TX as output
 #endif
@@ -50,7 +53,7 @@ void sn74hc595n::serWriteReg(uint8_t data) {
 #ifdef DEBUG
     // Serial port for debugging purposes
     Serial.begin(115200);
-    Serial.printf("Data shifted to register %d: \n", data);
+    Serial.printf("sn74hc595n::_serWriteReg Data write to register: %d [%lu ms]\n", data, millis());
 #endif
 }
 /** Get the state of the bit of the register
@@ -59,11 +62,12 @@ void sn74hc595n::serWriteReg(uint8_t data) {
  * @return The state of the bit of the register.
  */
 uint8_t sn74hc595n::getBitRegState(uint8_t indexBit) {
+    uint8_t regState = (SN74HC595N_REG >> indexBit) & 0x01;
 #ifdef DEBUG
-    Serial.printf("Get register state of index %d : %d\n", indexBit, (SN74HC595N_REG >> indexBit) & 0x01);
+    Serial.printf("sn74hc595n::getBitRegState Get register state of index %d : %d [%lu ms]\n", indexBit, regState, millis());
 #endif
     // Get the state of the pin of the register
-    return (SN74HC595N_REG >> indexBit) & 0x01;
+    return regState;
 }
 /** Set the bit of the register to high or low
  * This function sets the bit of the register to high or low using the index of the register.
@@ -77,164 +81,23 @@ void sn74hc595n::setBitRegState(uint8_t indexBit, uint8_t state) {
     } else {
         SN74HC595N_REG &= ~(1 << indexBit);
     }
-    serWriteReg(SN74HC595N_REG);  // shift the data to the shift register
+    _serWriteReg(SN74HC595N_REG);  // shift the data to the shift register
 #ifdef DEBUG
-    Serial.println("Set register state");
+    Serial.printf("sn74hc595n::setBitRegState Set register state of index indexBit : %d, state : %d [%lu ms]\n", indexBit, state, millis());
 #endif
 }
-/** Constructor  
- * This is the constructor for the motorUpDown class.
+/** Verify the functionality of controlling SN74HC595N
+ * This function verifies the functionality of controlling SN74HC595N by toggling all bits of the register to 1 and 0 alternately.
  */
-motorUpDown::motorUpDown() {
-    // Constructor implementation
-}
-/** Move the motor up and down
- * This function moves the motor up and down.
- */
-void motorUpDown::start(void) {
-    // Move the motor up and down
-    setBitRegState(Q5_MOTOR, HIGH);  // set the motor pin to high
+void sn74hc595n::testRegisterSN74HC595N() {
+    sn74hc595n sn74hc595nInstance;  // create an instance of the sn74hc595n class
+    if (SN74HC595N_REG != 0xFF || SN74HC595N_REG != 0x00) {
+        SN74HC595N_REG = 0x00;  // Initialize the register to 0x00
+    }
+    // Toggle all bits to 1 and write to the register
+    SN74HC595N_REG = !SN74HC595N_REG;
+    sn74hc595nInstance._serWriteReg(SN74HC595N_REG);
 #ifdef DEBUG
-    Serial.println("Motor up and down started");
-#endif
-}
-/** Stop the motor
- * This function stops the motor.
- */
-void motorUpDown::stop(void) {
-    // Stop the motor
-    setBitRegState(Q5_MOTOR, LOW);  // set the motor pin to low
-#ifdef DEBUG
-    Serial.println("Motor up and down stopped");
-#endif
-}
-/** Constructor  
- * This is the constructor for the speaker class.
- */
-speaker::speaker() {
-    // Constructor implementation
-}
-/** Play the sound
- * This function plays the sound.
- */
-void speaker::start(void) {
-    // Play the sound
-    setBitRegState(Q1_SPEAKER, HIGH);  // set the speaker pin to high
-#ifdef DEBUG
-    Serial.println("Sound started");
-#endif
-}
-/** Stop the sound
- * This function stops the sound.
- */
-void speaker::stop(void) {
-    // Stop the sound
-    setBitRegState(Q1_SPEAKER, LOW);  // set the speaker pin to low
-#ifdef DEBUG
-    Serial.println("Sound stopped");
-#endif
-}
-/** Constructor  
- * This is the constructor for the led1 class.
- */
-led1::led1() {
-    // Constructor implementation
-}
-/** Turn on the LED
- * This function turns on the LED.
- */
-void led1::on(void) {
-    // Turn on the LED
-    setBitRegState(Q2_LED1, HIGH);  // set the LED pin to high
-#ifdef DEBUG
-    Serial.println("LED1 on");
-#endif
-}
-/** Turn off the LED
- * This function turns off the LED.
- */
-void led1::off(void) {
-    // Turn off the LED
-    setBitRegState(Q2_LED1, LOW);  // set the LED pin to low
-#ifdef DEBUG    
-    Serial.println("LED1 off");
-#endif
-}
-/** Constructor  
- * This is the constructor for the led2 class.
- */
-led2::led2() {
-    // Constructor implementation
-}
-/** Turn on the LED
- * This function turns on the LED.
- */
-void led2::on(void) {
-    // Turn on the LED
-    setBitRegState(Q3_LED2, HIGH);  // set the LED pin to high
-#ifdef DEBUG
-    Serial.println("LED2 on");
-#endif
-}
-/** Turn off the LED
- * This function turns off the LED.
- */
-void led2::off(void) {
-    // Turn off the LED
-    setBitRegState(Q3_LED2, LOW);  // set the LED pin to low
-#ifdef DEBUG
-    Serial.println("LED2 off");
-#endif
-}
-/** Constructor  
- * This is the constructor for the led3 class.
- */
-led3::led3() {
-    // Constructor implementation
-}
-/** Turn on the LED
- * This function turns on the LED.
- */
-void led3::on(void) {
-    // Turn on the LED
-    setBitRegState(Q4_LED3, HIGH);  // set the LED pin to high
-#ifdef DEBUG
-    Serial.println("LED3 on");
-#endif
-}
-/** Turn off the LED
- * This function turns off the LED.
- */
-void led3::off(void) {
-    // Turn off the LED
-    setBitRegState(Q4_LED3, LOW);  // set the LED pin to low
-#ifdef DEBUG
-    Serial.println("LED3 off");
-#endif    
-}
-/** Constructor  
- * This is the constructor for the led4 class.
- */
-led4::led4() {
-    // Constructor implementation
-}
-/** Turn on the LED
- * This function turns on the LED.
- */
-void led4::on(void) {
-    // Turn on the LED
-    setBitRegState(Q6_LED4, HIGH);  // set the LED pin to high
-#ifdef DEBUG
-    Serial.println("LED4 on");
-#endif
-}
-/** Turn off the LED
- * This function turns off the LED.
- */
-void led4::off(void) {
-    // Turn off the LED
-    setBitRegState(Q6_LED4, LOW);  // set the LED pin to low
-#ifdef DEBUG
-    Serial.println("LED4 off");
+    Serial.printf("sn74hc595n::testRegisterSN74HC595N Test register state: %d [%lu ms]\n", SN74HC595N_REG, millis());
 #endif
 }

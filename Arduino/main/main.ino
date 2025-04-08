@@ -1,66 +1,44 @@
-#include <controlMotor.h>
-#include <SN74HC595N.h>
+#include <commonLibs.h>
+#include <motorControl.h>
 #include <readVoltage.h>
 #include <webServer.h>
+#include <webSocketsNew.h>
+#include <rtos.h>
 
-#define DEBUG
-
-controlMotor motor; // create an instance of the controlMotor class
-sn74hc595n sn74h; // create an instance of the sn74hc595n class
-motorUpDown motorM3; // create an instance of the motorUpDown class
-readVoltage voltage; // create an instance of the readVoltage class
-webServer server; // create an instance of the webServer class
-webSocket webSocket; // create an instance of the webSocket class
+motorControl motorsDrive; // create an instance of the controlMotor class
+sn74hc595n multiplexPins; // create an instance of the sn74hc595n class
+readVoltage voltageMonitor; // create an instance of the readVoltage class
+webServer serverLoad; // create an instance of the webServer class
+webSocket webSocketLoad; // create an instance of the webSocket class
+rtos rtosDrive; // create an instance of the rtos class
+pwmSignal pwmDrive; // create an instance of the pwmSignal class
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 #ifdef DEBUG
   // Serial port for debugging purposes
   Serial.begin(115200);
-  delay(2000);
+  while (!Serial) {
+    ; // wait for serial port to connect.
+  }
+  Serial.println("Starting...\n");
 #endif
-  motor.init();
-  sn74h.init();
-  voltage.init();
-  server.init();
-  server.loadWebPage();
-  webSocket.init();
-  delay(1000);
- 
+  motorsDrive.init();
+  multiplexPins.init();
+  voltageMonitor.init();
+  serverLoad.init();
+  serverLoad.loadWebPage();
+  webSocketLoad.init();
+  rtosDrive.init();
+  // rtosDrive.addTask(pwmDrive.testDutyCycle, 100000);
+  // rtosDrive.addTask(motorsDrive.testMotors, 200000);
+  // rtosDrive.addTask(voltageMonitor.testReadVoltage, 1000000);
+  rtosDrive.addTask(serverLoad.webServerHandler, 10000);
+  rtosDrive.addTask(webSocketLoad.webSocketHandler, 10000);
+  delay(100);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  // Handle client requests
-  server.handleClient();
-
-  // Handle WebSocket events
-  webSocket.loop();
-  
-  // delay(1000);
-  // Serial.println("Start motor up and down");
-  // motorM3.start();
-  // voltage.readVoltageBat();
-  // delay(1000);
-  // Serial.println("Stop motor up and down");
-  // motorM3.stop();
-  // voltage.readVoltageBat();
-  // delay(1000);
-  // Serial.println("Forward");
-  // motor.frontLeft(255, FORWARD);
-  // motor.frontRight(255, FORWARD);
-  // motor.backLeft(125, FORWARD);
-  // motor.backRight(125, FORWARD);
-  // delay(7000);
-  // motor.breakAll();
-  // delay(1000);
-  // //blinkLedD2.start(5000);
-  // Serial.println("Backward");
-  // motor.frontLeft(255, BACKWARD);
-  // motor.frontRight(255, BACKWARD);
-  // motor.backLeft(125, BACKWARD);
-  // motor.backRight(125, BACKWARD);
-  // delay(7000);
-  // motor.breakAll();
-  // delay(1000);
+  rtosDrive.executeTasks();
 }
