@@ -1,0 +1,4 @@
+readVoltage KEYWORD1
+init KEYWORD2
+readVoltageBat KEYWORD2
+testReadVoltage KEYWORD2
