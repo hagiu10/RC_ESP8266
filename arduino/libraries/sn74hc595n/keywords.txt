@@ -1,0 +1,5 @@
+sn74hc595n KEYWORD1
+init KEYWORD2
+setBitRegState KEYWORD2
+getBitRegState KEYWORD2
+testRegisterSN74HC595N KEYWORD2
