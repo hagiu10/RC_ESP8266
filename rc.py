@@ -1,6 +1,7 @@
 from cli.build import build
 from cli.config import config
 from cli.install import install
+from cli.flashing import flashing
 import sys
 
 def print_help():
@@ -10,6 +11,7 @@ def print_help():
         Options:
           -c, --config  Configure the project
           -b, --build  Build the project
+          -f, --flashing  Flash the project onto the ESP8266
           -i, --install-arduino-cli  Install the executable
           -h, --help   Show this message and exit.
         """
@@ -24,6 +26,10 @@ def rc():
         build.build_cmd()
     if '--config' in sys.argv or '-c' in sys.argv:
         config.config_cmd()
+    if '--flashing' in sys.argv or '-f' in sys.argv:
+        flashing.flashing_cmd()
+    if '--open-serial-terminal' or '-o' in sys.argv:
+        flashing.open_serial_terminal_cmd()
     if '--install-arduino-cli' in sys.argv or '-i' in sys.argv:
          install.install_cmd()
 
