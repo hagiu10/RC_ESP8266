@@ -1,0 +1,4 @@
+cmdInterface KEYWORD1
+init KEYWORD2
+exec KEYWORD2
+test KEYWORD2

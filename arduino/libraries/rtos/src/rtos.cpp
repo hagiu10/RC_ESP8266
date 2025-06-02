@@ -29,7 +29,7 @@ void rtos::init(void) {
 }
 /** Add a task to the RTOS
  */
-void rtos::addTask(function_callback pfuncExec, u_long cycleTimeRun_us) {
+void rtos::addTask(function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t state) {
     rtos* rtosInstance = rtos::_getInstance();
     // Task count is between 0 and MAX_TASKS
     if (rtosInstance->_taskCount >= MAX_TASKS) {
@@ -62,7 +62,7 @@ void rtos::addTask(function_callback pfuncExec, u_long cycleTimeRun_us) {
     // Add the task to the list
     rtosInstance->_taskList[rtosInstance->_taskCount].pfuncExec = pfuncExec;
     rtosInstance->_taskList[rtosInstance->_taskCount].cycleTimeRun_us = cycleTimeRun_us;
-    rtosInstance->_taskList[rtosInstance->_taskCount].state = TASK_READY;
+    rtosInstance->_taskList[rtosInstance->_taskCount].state = state;
 #ifdef DEBUG
     Serial.printf("rtos::addTask pfuncExec = %p, cycleTimeRun_us = %lu, _taskCount = %d . [%lu ms]\n",
         rtosInstance->_taskList[rtosInstance->_taskCount].pfuncExec,  
@@ -130,6 +130,9 @@ void rtos::_monitorTasks() {
     rtos* rtosInstance = rtos::_getInstance();
     // start from 1 to skip the idle task
     for (int i = 0; i < rtosInstance->_taskCount; i++) {
+        if (rtosInstance->_taskList[i].state == TASK_BLOCKED) {
+            continue;
+        }
         if (rtosInstance->_taskList[i].state == TASK_READY) {
             continue;
         }

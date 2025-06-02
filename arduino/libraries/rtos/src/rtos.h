@@ -26,6 +26,7 @@ typedef struct {
 enum taskState {
   TASK_WAITING,
   TASK_READY,
+  TASK_BLOCKED,
   TASK_STATE_COUNT
 };
 // Function prototypes
@@ -41,8 +42,9 @@ class rtos: private timer, private pwmSignal {
     rtos();
     ~rtos();
     void init(void);
-    void addTask(function_callback pfuncExec, u_long cycleTimeRun_us);
+    void addTask(function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t state = TASK_WAITING);
     void removeTask(function_callback pfuncExec);
+    void changeStateTask(String taskName, uint8_t state);
     void executeTasks(void);  
 };
 #endif // RTOS_H

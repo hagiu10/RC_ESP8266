@@ -22,7 +22,8 @@ void webSocket::init(void) {
 /** Handle the WebSocket event
  */
 void webSocket::_event(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
-    String message = "RC_ESP8266> ";
+    String message;
+    message.concat("RC_ESP8266> ");
     String text;
     String echoMessage;
     switch (type) {
@@ -33,8 +34,8 @@ void webSocket::_event(uint8_t num, WStype_t type, uint8_t* payload, size_t leng
           message += "Connected!";
           break;
         case WStype_TEXT:
-          text = String((char*)payload);
-          message += _executeCliCommand(text);
+          text.concat((char*)payload);
+          message += executeCmd(text);
           socket.sendTXT(num, message);
           break;
         default:
@@ -44,16 +45,6 @@ void webSocket::_event(uint8_t num, WStype_t type, uint8_t* payload, size_t leng
 #ifdef DEBUG
     Serial.printf("webSocket::event %s. [%lu ms]\n", message.c_str(), millis());
 #endif
-}
-/** Execute the CLI command
- */
-String webSocket::_executeCliCommand(String command) {
-    String response = "\nCommand executed: ";
-    response += command;
-    // Add your command execution logic here
-    // For example, you can parse the command and execute specific actions
-    // For now, just return the command as a response
-    return response;
 }
 /** Handle the WebSocket event
  */

@@ -14,6 +14,7 @@ def print_help():
           -f, --flashing  Flash the project onto the ESP8266
           -i, --install-arduino-cli  Install the executable
           -h, --help   Show this message and exit.
+          -o, --open-serial-terminal Open serial terminal with ESP8266
         """
         print(help_text)
 
@@ -28,10 +29,10 @@ def rc():
         config.config_cmd()
     if '--flashing' in sys.argv or '-f' in sys.argv:
         flashing.flashing_cmd()
-    if '--open-serial-terminal' or '-o' in sys.argv:
+    if '--open-serial-terminal' in sys.argv or '-o' in sys.argv:
         flashing.open_serial_terminal_cmd()
     if '--install-arduino-cli' in sys.argv or '-i' in sys.argv:
-         install.install_cmd()
+        install.install_cmd()
 
 if __name__ == "__main__":
     rc()
