@@ -90,6 +90,25 @@ void rtos::removeTask(function_callback pfuncExec) {
     Serial.printf("rtos::removeTask Task with pfuncExec = %p removed. [%lu ms]\n", pfuncExec, millis());
 #endif
 }
+/** Change state of task
+ * 
+ */
+void rtos::changeStateTask(String taskName, uint8_t state) {
+    rtos* rtosInstance = rtos::_getInstance();
+    // for (int i = 0; i < rtosInstance->_taskCount; i++) {
+    //     if (String(rtosInstance->_taskList[i].pfuncExec).equals(taskName.c_str())) {
+    //         rtosInstance->_taskList[i].state = state;
+    //         #ifdef DEBUG
+    //             Serial.printf("rtos::changeStateTask Task with pfuncExec = %p changed state to %d. [%lu ms]\n", 
+    //                 rtosInstance->_taskList[i].pfuncExec, state, millis());
+    //         #endif
+    //         return;
+    //     }
+    // }
+    // #ifdef DEBUG
+    //     Serial.printf("rtos::changeStateTask [error] Task with pfuncExec = %s not found. [%lu ms]\n", taskName.c_str(), millis());
+    // #endif
+}
 /** Execute the tasks in the RTOS
  */ 
 void rtos::executeTasks() {

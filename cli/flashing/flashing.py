@@ -1,6 +1,6 @@
 from pathlib import Path
 import subprocess
-import serial.tools.list_ports
+import serial.tools.list_ports as serial
 
 
 def flashing_cmd():
@@ -42,7 +42,7 @@ def get_com_port_ESp8266():
     target_pid = 0x7523  # PID of the ESP8266
     target_vid = 0x1A86  # VID of the ESP8266
 
-    ports = serial.tools.list_ports.comports()
+    ports = serial.comports()
     for port in ports:
         if port.vid == target_vid and port.pid == target_pid:
             return port.device

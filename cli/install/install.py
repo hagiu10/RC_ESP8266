@@ -2,11 +2,10 @@ from pathlib import Path
 import subprocess
 
 
-
-def install_cmd():
+def install_ard_cli():
     """Install the executable."""
      # Find bash.exe
-    bash_path = find_bash()
+    bash_path = find_bash_exe()
     if not bash_path:
         print("bash.exe not found in common paths.")
         return
@@ -31,7 +30,7 @@ def install_cmd():
         return
     
 
-def find_bash():
+def find_bash_exe():
     """Find the path to bash.exe."""
     common_paths = [
         "C:\\Program Files\\Git\\bin\\bash.exe",
