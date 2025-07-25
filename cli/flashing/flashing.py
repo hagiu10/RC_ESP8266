@@ -1,5 +1,6 @@
 from pathlib import Path
 import subprocess
+import serial as pyserial
 import serial.tools.list_ports as serial
 
 
@@ -15,11 +16,14 @@ def flashing_cmd():
     board_core = "esp8266:esp8266"
     # Command to build the project
     com_port = get_com_port_ESp8266()
+    # Path to the configuration file
+    config_file = ROOT / "workspace" / "arduino" / "arduino-cli.yaml"
     command = [path_arduino_exe, 
                "upload",
                "-p", com_port,
                "--fqbn",f"{board_core}:generic", 
-               path_arduini_sketch
+               path_arduini_sketch,
+               "--config-file",config_file
                ]
 
     result = subprocess.run(command, shell=True, 
@@ -56,7 +60,7 @@ def open_serial_terminal_cmd():
     baud_rate = 115200
 
     try:
-        with serial.Serial(com_port, baud_rate, timeout=1) as ser:
+        with pyserial.Serial(com_port, baud_rate, timeout=1) as ser:
             print(f"Connected to {com_port} at {baud_rate} baud.")
             print("Press Ctrl+C to exit.")
             while True:

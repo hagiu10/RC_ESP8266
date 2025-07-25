@@ -18,6 +18,7 @@
 typedef void (*function_callback)  ();
 // Task structure
 typedef struct {
+  String taskName;
   function_callback pfuncExec;
   u_long cycleTimeRun_us;
   uint8_t state;
@@ -42,7 +43,10 @@ class rtos: private timer, private pwmSignal {
     rtos();
     ~rtos();
     void init(void);
-    void addTask(function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t state = TASK_WAITING);
+    void addTask(const char taskName[],
+                function_callback pfuncExec, 
+                u_long cycleTimeRun_us, 
+                uint8_t state = TASK_WAITING);
     void removeTask(function_callback pfuncExec);
     void changeStateTask(String taskName, uint8_t state);
     void executeTasks(void);  

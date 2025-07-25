@@ -30,11 +30,11 @@ void setup() {
   serverLoad.loadWebPage();
   webSocketLoad.init();
   rtosDrive.init();
-  rtosDrive.addTask(pwmDrive.testDutyCycle, 100000);
+  rtosDrive.addTask("blinkLed",pwmDrive.testDutyCycle, 100000);
   // rtosDrive.addTask(motorsDrive.testMotors, 200000);
   // rtosDrive.addTask(voltageMonitor.testReadVoltage, 1000000);
-  rtosDrive.addTask(serverLoad.webServerHandler, 10000);
-  rtosDrive.addTask(webSocketLoad.webSocketHandler, 10000);
+  // rtosDrive.addTask(serverLoad.webServerHandler, 10000);
+  // rtosDrive.addTask(webSocketLoad.webSocketHandler, 10000);
   delay(100);
 }
 

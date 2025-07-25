@@ -44,24 +44,24 @@ String cmdInterface::executeCmd(String cmdLine) {
 
     if (cmd.equalsIgnoreCase(message = "start")) {
         if (argCount < 1) {
-            message = "Error: Missing test name. Use: start 'testName'";
+            message = "Error: Missing test name. Use: start 'taskName'";
             return message;
         }
-        String testName = args[1];
-        changeStateTask(testName,TASK_READY);
+        String taskName = args[1];
+        changeStateTask(taskName,TASK_READY);
         message = "Task '";
-        message += testName;
+        message += taskName;
         message += "' started.";
         return message;
     } else if (cmd.equalsIgnoreCase(message = "stop")) {
         if (argCount < 1) {
-            message = "Error: Missing test name. Use: stop 'testName'" ;
+            message = "Error: Missing test name. Use: stop 'taskName'" ;
             return message;
         }
-        String testName = args[1];
-        changeStateTask(testName,TASK_BLOCKED);
+        String taskName = args[1];
+        changeStateTask(taskName,TASK_BLOCKED);
         message = "Task '";
-        message += testName;
+        message += taskName;
         message += "' stopped.";
     } else if (cmd.equalsIgnoreCase(message = "help")) {
         message = HELP_TEXT;

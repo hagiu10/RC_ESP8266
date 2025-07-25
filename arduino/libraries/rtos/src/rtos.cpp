@@ -29,7 +29,7 @@ void rtos::init(void) {
 }
 /** Add a task to the RTOS
  */
-void rtos::addTask(function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t state) {
+void rtos::addTask(const char taskName[],function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t state) {
     rtos* rtosInstance = rtos::_getInstance();
     // Task count is between 0 and MAX_TASKS
     if (rtosInstance->_taskCount >= MAX_TASKS) {
@@ -39,6 +39,19 @@ void rtos::addTask(function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t 
         return;
     }
     for(int i = 0; i < rtosInstance->_taskCount; i++) {
+        // Check if task with the same name or function pointer already exists
+        if(rtosInstance->_taskList[i].pfuncExec == nullptr) {
+            continue; // Skip uninitialized tasks
+            #ifdef DEBUG
+                Serial.printf("rtos::addTask [warning] Skipping uninitialized task at index %d. [%lu ms]\n", i, millis());
+            #endif
+        }
+        if (String(rtosInstance->_taskList[i].taskName).equals(String(taskName).c_str())) {
+            #ifdef DEBUG
+                Serial.printf("rtos::addTask [error] Task with taskName = %s already exists. [%lu ms]\n", String(taskName).c_str(), millis());
+            #endif
+            return;
+        }
         if (rtosInstance->_taskList[i].pfuncExec == pfuncExec) {
             #ifdef DEBUG
                 Serial.printf("rtos::addTask [error] Task with pfuncExec = %p already exists. [%lu ms]\n", pfuncExec, millis());
@@ -60,11 +73,13 @@ void rtos::addTask(function_callback pfuncExec, u_long cycleTimeRun_us, uint8_t 
         #endif
     }
     // Add the task to the list
+    rtosInstance->_taskList[rtosInstance->_taskCount].taskName = String(taskName);
     rtosInstance->_taskList[rtosInstance->_taskCount].pfuncExec = pfuncExec;
     rtosInstance->_taskList[rtosInstance->_taskCount].cycleTimeRun_us = cycleTimeRun_us;
     rtosInstance->_taskList[rtosInstance->_taskCount].state = state;
 #ifdef DEBUG
-    Serial.printf("rtos::addTask pfuncExec = %p, cycleTimeRun_us = %lu, _taskCount = %d . [%lu ms]\n",
+    Serial.printf("rtos::addTask taskName = %s, pfuncExec = %p, cycleTimeRun_us = %lu, _taskCount = %d . [%lu ms]\n",
+        rtosInstance->_taskList[rtosInstance->_taskCount].taskName.c_str(),
         rtosInstance->_taskList[rtosInstance->_taskCount].pfuncExec,  
         rtosInstance->_taskList[rtosInstance->_taskCount].cycleTimeRun_us,
         rtosInstance->_taskCount, 
@@ -95,19 +110,19 @@ void rtos::removeTask(function_callback pfuncExec) {
  */
 void rtos::changeStateTask(String taskName, uint8_t state) {
     rtos* rtosInstance = rtos::_getInstance();
-    // for (int i = 0; i < rtosInstance->_taskCount; i++) {
-    //     if (String(rtosInstance->_taskList[i].pfuncExec).equals(taskName.c_str())) {
-    //         rtosInstance->_taskList[i].state = state;
-    //         #ifdef DEBUG
-    //             Serial.printf("rtos::changeStateTask Task with pfuncExec = %p changed state to %d. [%lu ms]\n", 
-    //                 rtosInstance->_taskList[i].pfuncExec, state, millis());
-    //         #endif
-    //         return;
-    //     }
-    // }
-    // #ifdef DEBUG
-    //     Serial.printf("rtos::changeStateTask [error] Task with pfuncExec = %s not found. [%lu ms]\n", taskName.c_str(), millis());
-    // #endif
+    for (int i = 0; i < rtosInstance->_taskCount; i++) {
+        if (String(rtosInstance->_taskList[i].taskName).equals(taskName.c_str())) {
+            rtosInstance->_taskList[i].state = state;
+            #ifdef DEBUG
+                Serial.printf("rtos::changeStateTask Task with taskName = %p changed state to %d. [%lu ms]\n", 
+                    rtosInstance->_taskList[i].taskName, state, millis());
+            #endif
+            return;
+        }
+    }
+    #ifdef DEBUG
+        Serial.printf("rtos::changeStateTask [error] Task with taskName = %s not found. [%lu ms]\n", taskName.c_str(), millis());
+    #endif
 }
 /** Execute the tasks in the RTOS
  */ 
