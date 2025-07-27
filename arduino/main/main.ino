@@ -10,7 +10,6 @@ sn74hc595n multiplexPins; // create an instance of the sn74hc595n class
 readVoltage voltageMonitor; // create an instance of the readVoltage class
 webServer serverLoad; // create an instance of the webServer class
 webSocket webSocketLoad; // create an instance of the webSocket class
-rtos rtosDrive; // create an instance of the rtos class
 pwmSignal pwmDrive; // create an instance of the pwmSignal class
 
 // the setup function runs once when you press reset or power the board
@@ -29,8 +28,10 @@ void setup() {
   serverLoad.init();
   serverLoad.loadWebPage();
   webSocketLoad.init();
-  rtosDrive.init();
-  rtosDrive.addTask("blinkLed",pwmDrive.testDutyCycle, 100000);
+  rtos::init();
+  rtos::addTask("blinkLed", pwmSignal::testDutyCycle, 100000);
+  rtos::removeTask("blinkLed");
+  rtos::addTask("blinkLed", pwmSignal::testDutyCycle, 100000);
   // rtosDrive.addTask(motorsDrive.testMotors, 200000);
   // rtosDrive.addTask(voltageMonitor.testReadVoltage, 1000000);
   // rtosDrive.addTask(serverLoad.webServerHandler, 10000);
@@ -40,5 +41,5 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-  rtosDrive.executeTasks();
+  rtos::executeTasks();
 }

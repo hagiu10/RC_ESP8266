@@ -82,7 +82,7 @@ void rtos::addTask(const char taskName[],function_callback pfuncExec, u_long cyc
         rtosInstance->_taskList[rtosInstance->_taskCount].taskName.c_str(),
         rtosInstance->_taskList[rtosInstance->_taskCount].pfuncExec,  
         rtosInstance->_taskList[rtosInstance->_taskCount].cycleTimeRun_us,
-        rtosInstance->_taskCount, 
+        rtosInstance->_taskCount++, 
         millis());
 #endif
     // Increment the task count
@@ -90,10 +90,10 @@ void rtos::addTask(const char taskName[],function_callback pfuncExec, u_long cyc
 }
 /** Remove a task from the RTOS
  */
-void rtos::removeTask(function_callback pfuncExec) {
+void rtos::removeTask(const char taskName[]) {
     rtos* rtosInstance = rtos::_getInstance();
     for (int i = 0; i < rtosInstance->_taskCount; i++) {
-        if (rtosInstance->_taskList[i].pfuncExec == pfuncExec) {
+        if (String(rtosInstance->_taskList[i].taskName).equals(String(taskName).c_str())) {
             for (int j = i; j < rtosInstance->_taskCount - 1; j++) {
                 rtosInstance->_taskList[j] = rtosInstance->_taskList[j + 1];
             }
@@ -102,7 +102,7 @@ void rtos::removeTask(function_callback pfuncExec) {
         }
     }
 #ifdef DEBUG
-    Serial.printf("rtos::removeTask Task with pfuncExec = %p removed. [%lu ms]\n", pfuncExec, millis());
+    Serial.printf("rtos::removeTask Task with taskName = %s removed. [%lu ms]\n", taskName, millis());
 #endif
 }
 /** Change state of task
@@ -146,7 +146,7 @@ void rtos::_sysTickHandler_10us(void) {
     rtos* rtosInstance = rtos::_getInstance();
     if (rtosInstance == nullptr) {
         #ifdef DEBUG
-            Serial.printf("rtos: [error] RTOS instance is null. [%lu ms]\n", millis());
+            Serial.printf("rtos:: [error] RTOS instance is null. [%lu ms]\n", millis());
         #endif
         return;
     }

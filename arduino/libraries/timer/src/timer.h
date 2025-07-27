@@ -40,9 +40,10 @@ class timer {
     timer_callback _callback;
     float _frequency;
     uint32_t _timerCount;
+    static timer* _getInstance(void);
   public:
     timer();
-    void init(void);
-    void interrupt(timer_callback callback);
+    static void init(void);
+    static void interrupt(timer_callback callback);
 };
 #endif // TIMER_H
