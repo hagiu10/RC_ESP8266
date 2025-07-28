@@ -31,12 +31,12 @@ typedef enum {
 // Function prototypes
 class sn74hc595n {
   private:
-    void _serWriteReg(uint8_t data);
+    static void _serWriteReg(uint8_t data);
   public:
     sn74hc595n(); 
-    void init(void);
-    uint8_t getBitRegState(uint8_t indexBit);
-    void setBitRegState(uint8_t indexBit, uint8_t state);
+    static void init(void);
+    static uint8_t getBitRegState(uint8_t indexBit);
+    static void setBitRegState(uint8_t indexBit, uint8_t state);
     static void testRegisterSN74HC595N(void);
 };
 #endif //  SN74HC595N_H

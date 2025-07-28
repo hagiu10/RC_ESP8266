@@ -4,6 +4,7 @@
 #include <webServer.h>
 #include <webSocketsNew.h>
 #include <rtos.h>
+#include <ledControl.h>
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -22,11 +23,13 @@ void setup() {
   webServer::loadWebPage();
   webSocket::init();
   rtos::init();
+  ledControl::init();
+  rtos::addTask("ledControl", ledControl::testLeds, 1000000);
   // rtos::addTask("blinkLed", pwmSignal::testDutyCycle, 100000);
   // rtosDrive.addTask(motorsDrive.testMotors, 200000);
   // rtosDrive.addTask(voltageMonitor.testReadVoltage, 1000000);
-  rtos::addTask("serverLoad", webServer::webServerHandler, 10000);
-  rtos::addTask("webSocketLoad", webSocket::webSocketHandler, 10000);
+  // rtos::addTask("serverLoad", webServer::webServerHandler, 10000);
+  // rtos::addTask("webSocketLoad", webSocket::webSocketHandler, 10000);
   delay(100);
 }
 

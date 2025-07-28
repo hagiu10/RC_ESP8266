@@ -50,7 +50,7 @@ void webSocket::_event(uint8_t num, WStype_t type, uint8_t* payload, size_t leng
           break;
       }
 #ifdef DEBUG
-    Serial.printf("webSocket::event Time event: [%lu ms]\n", millis());
+    // Serial.printf("webSocket::event Time event: [%lu ms]\n", millis());
     Serial.printf("webSocket::event %s", message.c_str());
 #endif
 }
