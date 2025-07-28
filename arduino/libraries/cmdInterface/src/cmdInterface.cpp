@@ -20,15 +20,21 @@ String cmdInterface::executeCmd(String cmdLine) {
     String message;
     cmdLine.trim();
     String args[MAX_ARGS]; // Fixed-size array for up to maximum number of arguments
-    int argCount = 0;
+    ushort argCount = 0;
 
     int startIndex = 0;
     int spaceIndex = cmdLine.indexOf(' ');
 
     while (spaceIndex != -1 && argCount < MAX_ARGS) {
-        args[argCount++] = cmdLine.substring(startIndex, spaceIndex);
+        args[argCount] = cmdLine.substring(startIndex, spaceIndex);
         startIndex = spaceIndex + 1;
         spaceIndex = cmdLine.indexOf(' ', startIndex);
+        argCount++;
+    }
+    // Add the last argument if there is any left and we have not exceeded MAX_ARGS
+    if (startIndex < cmdLine.length() && argCount < MAX_ARGS) {
+        args[argCount] = cmdLine.substring(startIndex);
+        argCount++;
     }
 
 #ifdef DEBUG
@@ -44,7 +50,7 @@ String cmdInterface::executeCmd(String cmdLine) {
 
     if (cmd.equalsIgnoreCase(message = "start")) {
         if (argCount < 1) {
-            message = "Error: Missing test name. Use: start 'taskName'";
+            message = "Error: Missing task name. Use: start 'taskName'";
             return message;
         }
         String taskName = args[1];
@@ -55,7 +61,7 @@ String cmdInterface::executeCmd(String cmdLine) {
         return message;
     } else if (cmd.equalsIgnoreCase(message = "stop")) {
         if (argCount < 1) {
-            message = "Error: Missing test name. Use: stop 'taskName'" ;
+            message = "Error: Missing task name. Use: stop 'taskName'" ;
             return message;
         }
         String taskName = args[1];

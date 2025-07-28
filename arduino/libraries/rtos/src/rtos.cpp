@@ -82,7 +82,7 @@ void rtos::addTask(const char taskName[],function_callback pfuncExec, u_long cyc
         rtosInstance->_taskList[rtosInstance->_taskCount].taskName.c_str(),
         rtosInstance->_taskList[rtosInstance->_taskCount].pfuncExec,  
         rtosInstance->_taskList[rtosInstance->_taskCount].cycleTimeRun_us,
-        rtosInstance->_taskCount++, 
+        rtosInstance->_taskCount, 
         millis());
 #endif
     // Increment the task count

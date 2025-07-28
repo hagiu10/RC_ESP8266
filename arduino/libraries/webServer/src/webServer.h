@@ -16,8 +16,8 @@ class webServer {
     static webServer* _getInstance(void);
   public:
     webServer();
-    void init(void);
-    void loadWebPage(void);
+    static void init(void);
+    static void loadWebPage(void);
     static void webServerHandler(void);
 };
 #endif // WEB_SERVER_H

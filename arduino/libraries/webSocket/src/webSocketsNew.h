@@ -18,9 +18,11 @@ class webSocket: private cmdInterface {
     // WebSocketsServer socket; // Create an instance of the WebSocketsServer class
     static webSocket* _getInstance(void);
     void _event(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
+    String formatTextMessage(String & message);
   public:
     webSocket();
-    void init(void);
+    static void init(void);
+    static void onSocketEventStatic(uint8_t num, WStype_t type, uint8_t* payload, size_t length);
     static void webSocketHandler(void);
 };
 #endif // WEB_SOCKET_H
