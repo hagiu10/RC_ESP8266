@@ -159,6 +159,7 @@ pwmSignal* pwmSignal::_getInstance(void) {
  * This function is called by the RTOS to test the duty cycle of the LED
  */
 void pwmSignal::testDutyCycle() {
+#ifdef DEBUG
     pwmSignal* pwmInstance = pwmSignal::_getInstance();
     static uint8_t dutyCycle = pwmInstance->getDutyCycle(LED_PIN);
     if (dutyCycle == PWM_MAX_DUTY_CYCLE) {
@@ -168,4 +169,5 @@ void pwmSignal::testDutyCycle() {
     }
     dutyCycle += incDutyCycleLed ? 1 : -1;
     pwmInstance->setDutyCycle(LED_PIN, dutyCycle);
+#endif
 }

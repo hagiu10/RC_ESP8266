@@ -31,12 +31,14 @@ typedef enum {
 // Function prototypes
 class sn74hc595n {
   private:
+    static uint8_t SN74HC595N_REG;  // Register to store the state of the shift register
     static void _serWriteReg(uint8_t data);
+    static sn74hc595n* _getInstance(void);
   public:
     sn74hc595n(); 
     static void init(void);
     static uint8_t getBitRegState(uint8_t indexBit);
-    static void setBitRegState(uint8_t indexBit, uint8_t state);
+    static void setBitRegState(uint8_t indexBit, bool state);
     static void testRegisterSN74HC595N(void);
 };
 #endif //  SN74HC595N_H

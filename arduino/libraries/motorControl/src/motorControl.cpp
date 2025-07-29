@@ -110,6 +110,7 @@ motorControl* motorControl::_getInstance(void) {
  * this function will be used in the rtos task.
  */
 void motorControl::testMotors() {
+#ifdef DEBUG
     motorControl* motorControlInstance = motorControl::_getInstance();
     if (dutyCycleMotor == PWM_MAX_DUTY_CYCLE) {
         incDutyCycleMotor = false;
@@ -127,4 +128,5 @@ void motorControl::testMotors() {
     motorControlInstance->setSpeed(motorControlInstance->_frontRightMotor, dutyCycleMotor, direction);
     motorControlInstance->setSpeed(motorControlInstance->_backLeftMotor, dutyCycleMotor, direction);
     motorControlInstance->setSpeed(motorControlInstance->_backRightMotor, dutyCycleMotor, direction);
+#endif
 }

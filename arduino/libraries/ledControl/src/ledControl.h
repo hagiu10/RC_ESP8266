@@ -21,7 +21,7 @@ class ledControl: public sn74hc595n {
   public:
     ledControl();
     static void init(void);
-    static void setLed(uint8_t led, uint8_t state);
+    static void setLed(uint8_t led, bool state);
     static void testLeds(void);
 
 };
