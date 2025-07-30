@@ -43,9 +43,9 @@ void sn74hc595n::_serWriteReg(uint8_t data) {
     digitalWrite(SRCLK, LOW);  // set the SRCLK pin to low
     digitalWrite(SER, LOW);  // set the SER pin to low
     digitalWrite(RCLK, LOW);  // start sending data to the shift register
-    for(int i = 0; i < 8; i++) {
+    for(int i = 7; i >= 0; i--) {
         digitalWrite(SRCLK, LOW);  // set the SRCLK pin to low
-        digitalWrite(SER, (data >> i) & 0x01);  // shift data to the SER pin
+        digitalWrite(SER, (data >> i) & 0x01);  // shift data to the SER pin (MSB first)
         digitalWrite(SRCLK, HIGH);  // set the SRCLK pin to high
     }
     digitalWrite(SRCLK, LOW);  // set the SRCLK pin to low
@@ -107,7 +107,7 @@ void sn74hc595n::testRegisterSN74HC595N() {
         sn74hc595nInstance->setBitRegState(i, bitState);
     }
     // Use next code just in case you want to see segnals on osciloscope
-    // uint8_t regValue = 0xAA;
+    // uint8_t regValue = 0x5C;
     // _serWriteReg(regValue);  // write the data to the register
 #ifdef DEBUG
    Serial.printf("sn74hc595n::testRegisterSN74HC595N Test register state: %d [%lu ms]\n", SN74HC595N_REG, millis());

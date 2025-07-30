@@ -29,9 +29,9 @@ class pwmSignal {
     static pwmSignal* _getInstance(void);
   public:
     pwmSignal();
-    void init(void);
-    void setDutyCycle(uint8_t pin, uint8_t dutyCycle);
-    uint8_t getDutyCycle(uint8_t pin);
+    static void init(void);
+    static void setDutyCycle(uint8_t pin, uint8_t dutyCycle);
+    static uint8_t getDutyCycle(uint8_t pin);
     static void pwmHandler();
     static void testDutyCycle(); 
 };

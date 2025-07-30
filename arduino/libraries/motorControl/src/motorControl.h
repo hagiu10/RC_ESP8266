@@ -50,10 +50,10 @@ class motorControl: public pwmSignal, public sn74hc595n {
     static motorControl* _getInstance(void);
   public:
     motorControl();
-    void init(void);
-    void setSpeed(motor motor, uint8_t dutyCycle, bool direction);
-    void breakAll(void);
-    void upDown(bool state);
+    static void init(void);
+    static void setSpeed(motor motor, uint8_t dutyCycle, bool direction);
+    static void breakAll(void);
+    static void upDown(bool state);
     static void testMotors(void);
 };
 #endif // MOTORCONTROL_H

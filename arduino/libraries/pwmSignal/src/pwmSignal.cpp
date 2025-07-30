@@ -64,7 +64,7 @@ void pwmSignal::setDutyCycle(uint8_t pin, uint8_t dutyCycle) {
         dutyCycle = PWM_MAX_DUTY_CYCLE;
     }
     if (dutyCycle == PWM_MIN_DUTY_CYCLE || dutyCycle == PWM_MAX_DUTY_CYCLE) {
-        _delPin(pin, dutyCycle/PWM_MAX_DUTY_CYCLE);
+        pwmInstance->_delPin(pin, dutyCycle/PWM_MAX_DUTY_CYCLE);
         return;
     } 
     for (uint8_t i = 0; i < pwmInstance->_nrPins; i++) {
@@ -76,7 +76,7 @@ void pwmSignal::setDutyCycle(uint8_t pin, uint8_t dutyCycle) {
             return;
         }
     }
-    _addPin(pin, dutyCycle); 
+    pwmInstance->_addPin(pin, dutyCycle); 
 }
 /** Get duty cycle for a pin
  * @param pin Pin to get duty cycle

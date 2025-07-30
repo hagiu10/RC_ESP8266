@@ -1,7 +1,7 @@
 #include <ledControl.h>
 
 #ifdef DEBUG
-bool stateLeds = false; // Initialize the global variable
+bool stateLeds = off; // Initialize the global variable
 #endif
 /** Constructor
  */
@@ -43,6 +43,7 @@ ledControl* ledControl::_getInstance(void) {
  */
 void ledControl::testLeds() {
 #ifdef DEBUG
+    // testRegisterSN74HC595N();  // Test the shift register
     ledControl* ledControlInstance = ledControl::_getInstance();
     stateLeds = !stateLeds;
     ledControlInstance->setLed(LED1, stateLeds);

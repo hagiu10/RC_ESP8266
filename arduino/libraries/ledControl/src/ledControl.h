@@ -10,6 +10,9 @@
 #define LED3 Q4_LED3  // Define the LED pins conform to your hardware setup
 #define LED4 Q6_LED4  // Define the LED pins conform to your hardware setup
 
+#define off 0
+#define on 1
+
 #ifdef DEBUG
 extern bool stateLeds;  // Global variable declaration for debugging
 #endif
