@@ -28,7 +28,7 @@ void setup() {
   // rtos::addTask("sn74hc595n", sn74hc595n::testRegisterSN74HC595N, 10e6);
   // rtos::addTask("ledControl", ledControl::testLeds, 10e6);
   // rtos::addTask("pwmSignal", pwmSignal::testDutyCycle, 10e5);
-   rtos::addTask("motorControl",motorControl::testMotors, 2*10e6);
+  rtos::addTask("motorControl",motorControl::testMotors, 10e3);
   // rtosDrive.addTask(voltageMonitor.testReadVoltage, 10e6);
   // rtos::addTask("serverLoad", webServer::webServerHandler, 10e4);
   // rtos::addTask("webSocketLoad", webSocket::webSocketHandler, 10e4);

@@ -19,13 +19,15 @@ motorControl::motorControl() {
     _backRightMotor.pinPositive = OUT7_MBRP;
     _backRightMotor.pinNegative = OUT8_MBRN;
 #ifdef DEBUG
-    Serial.printf("motorControl: Constructor called. [%lu ms]\n", millis());
+    Serial.printf("motorControl::motorControl Constructor called. [%lu ms]\n", millis());
 #endif
 }
 /** Initialize motor pins of esp8266
  * This function initializes the pins to controll pwm signal motor power.
  */
 void motorControl::init(void) {
+    // Get the instance of the motorControl
+    motorControl* motorControlInstance = motorControl::_getInstance();
     // Initialize the pwm signal
     pwmSignal::init();
     // Initialize the shift register
@@ -39,11 +41,11 @@ void motorControl::init(void) {
     pinMode(D6, OUTPUT);  // sets the pin D6 as output
     pinMode(D7, OUTPUT);  // sets the pin D7 as output
     pinMode(D8, OUTPUT);  // sets the pin D8 as output
-#ifdef DEBUG
-    Serial.printf("motorControl: Initialized all pins for motors control. [%lu ms]\n", millis());
-#endif
     // Break all motors at the beginning
     breakAll();
+#ifdef DEBUG
+    Serial.printf("motorControl::init Initialized all pins for motors control. [%lu ms]\n", millis());
+#endif
 }  
 /** Control speed and direction of motor
  * This function control the speed and direction of motor.
@@ -61,7 +63,7 @@ void motorControl::setSpeed(motor motor, uint8_t dutyCycle, bool direction) {
         setDutyCycle(motor.pinNegative, dutyCycle);
     }
 #ifdef DEBUG
-    Serial.printf("motorControl: Set speed called. [%lu ms]\n", millis());
+    Serial.printf("motorControl::setSpeed Set speed motor executed. [%lu ms]\n", millis());
 #endif
 }
 /** Move the motor up and down
@@ -70,13 +72,9 @@ void motorControl::setSpeed(motor motor, uint8_t dutyCycle, bool direction) {
  */
 void motorControl::upDown(bool state) {
     // Code to move the motor up and down
-    if (state) {
-        setBitRegState(Q5_MOTOR, HIGH);
-    } else {
-        setBitRegState(Q5_MOTOR, LOW);
-    }
+    setBitRegState(Q5_MOTOR, state?HIGH:LOW);
 #ifdef DEBUG
-    Serial.printf("motorControl::upDown Move the motor up and down called with state: %d. [%lu ms]\n",state, millis());
+    Serial.printf("motorControl::upDown Start/stop motor up and down with state: %d. [%lu ms]\n",state?HIGH:LOW, millis());
 #endif
 }
 /** Break all motors
@@ -94,7 +92,7 @@ void motorControl::breakAll(void) {
     setDutyCycle(OUT8_MBRN, 0);
     upDown(false);
 #ifdef DEBUG
-    Serial.printf("motorControl: Break all motors called. All pins are seting to LOW. [%lu ms]\n", millis());
+    Serial.printf("motorControl::breakAll Break all motors executed. All pins are seting to LOW. [%lu ms]\n", millis());
 #endif
 }
 /** Get instance of the motorControl
@@ -112,17 +110,17 @@ motorControl* motorControl::_getInstance(void) {
 void motorControl::testMotors() {
 #ifdef DEBUG
     motorControl* motorControlInstance = motorControl::_getInstance();
-    if (dutyCycleMotor == PWM_MAX_DUTY_CYCLE) {
+    if (dutyCycleMotor >= PWM_MAX_DUTY_CYCLE) {
         incDutyCycleMotor = false;
         motorControlInstance->breakAll();
         motorControlInstance->upDown(false);
-    } else if (dutyCycleMotor == PWM_MIN_DUTY_CYCLE) {
+    } else if (dutyCycleMotor <= PWM_MIN_DUTY_CYCLE) {
         incDutyCycleMotor = true;
         motorControlInstance->breakAll();
         motorControlInstance->upDown(true);
     }
     dutyCycleMotor += incDutyCycleMotor ? 1 : -1;
-    bool direction = incDutyCycleMotor ? FORWARD : BACKWARD;
+    bool direction = incDutyCycleMotor==-1 ? FORWARD : BACKWARD;
 
     motorControlInstance->setSpeed(motorControlInstance->_frontLeftMotor, dutyCycleMotor, direction);
     motorControlInstance->setSpeed(motorControlInstance->_frontRightMotor, dutyCycleMotor, direction);

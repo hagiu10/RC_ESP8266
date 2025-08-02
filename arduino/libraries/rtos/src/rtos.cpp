@@ -142,7 +142,7 @@ void rtos::executeTasks() {
  */
 void rtos::_sysTickHandler_10us(void) {
     // It is mandatory to run the pwmHandler() function in the interrupt service routine
-    pwmHandler();
+    pwmSignal::pwmHandler();
     rtos* rtosInstance = rtos::_getInstance();
     if (rtosInstance == nullptr) {
         #ifdef DEBUG
