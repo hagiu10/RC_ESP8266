@@ -21,9 +21,12 @@ rtos::~rtos() {
 /** Initialize the RTOS
  */
 void rtos::init(void) {
+    uint16_t timeWait = 100; // Wait time for the timer to initialize
     timer::init();
     timer::interrupt(_sysTickHandler_10us);
+    delay(timeWait); // Allow time for the timer to initialize
 #ifdef DEBUG
+    Serial.printf("rtos::init Wait %d [ms]. [%lu ms]\n", timeWait, millis());
     Serial.printf("rtos::init Initialized. [%lu ms]\n", millis());
 #endif
 }
@@ -61,16 +64,17 @@ void rtos::addTask(const char taskName[],function_callback pfuncExec, u_long cyc
     }
     // Run time is between 1 ms and 100 ms
     if (cycleTimeRun_us > MAX_CYCLE_TIME) {
-        cycleTimeRun_us = MAX_CYCLE_TIME;
         #ifdef DEBUG
-            Serial.printf("rtos::addTask [warning] Run time of task exceeded. [%lu ms]\n", millis());
+            Serial.printf("rtos::addTask [warning] Run time of task exceeded with %d us. [%lu ms]\n",cycleTimeRun_us - MAX_CYCLE_TIME, millis());
         #endif
+        cycleTimeRun_us = MAX_CYCLE_TIME;
+        
     }
     if (cycleTimeRun_us < MIN_CYCLE_TIME) {
-        cycleTimeRun_us = MIN_CYCLE_TIME;
-        #ifdef DEBUG
-            Serial.printf("rtos::addTask [warning] Run time of task is too short. [%lu ms]\n", millis());
+         #ifdef DEBUG
+            Serial.printf("rtos::addTask [warning] Run time of task is too short with %d us. [%lu ms]\n", MIN_CYCLE_TIME - cycleTimeRun_us, millis());
         #endif
+        cycleTimeRun_us = MIN_CYCLE_TIME; 
     }
     // Add the task to the list
     rtosInstance->_taskList[rtosInstance->_taskCount].taskName = String(taskName);

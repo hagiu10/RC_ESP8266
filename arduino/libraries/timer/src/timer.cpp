@@ -1,35 +1,36 @@
 #include <timer.h>
 
+timer_callback timer::_callback = nullptr; // Initialize static member variable
 /** Constructor
  */
 timer::timer() {
-    _frequency = 0;
-    _timerCount = 0;
-    _callback = NULL;
-#ifdef DEBUG
-    Serial.printf("ESP8266TimerInterrupt: Constructor\n");
-#endif
+ // Constructor implementation
 }
 
 /** Initialize the timer
  */
 void timer::init(void) {
-    timer* timerInstance = timer::_getInstance();
-    float minFreq = (float) TIM_CLOCK_FREQ / MAX_COUNT;
-    timerInstance->_frequency = minFreq;
-    timerInstance->_timerCount = 800;//(uint32_t) (TIM_CLOCK_FREQ / _frequency);
-    timer1_write(timerInstance->_timerCount);
+    double min_frequency = (double)TIM_CLOCK_FREQ / (double)MAX_COUNT;
+    if(TIM_FREQUENCY < min_frequency) {
+        #ifdef DEBUG
+            Serial.printf("timer::init [error] Timer frequency %fHz is below minimum frequency %fHz. [%lu ms]\n", TIM_FREQUENCY, min_frequency, millis());
+        #endif
+        return;
+    }
+    uint32_t timerCount = (uint32_t) (TIM_CLOCK_FREQ / TIM_FREQUENCY);
+    if (timerCount > MAX_COUNT) {
+        #ifdef DEBUG
+            Serial.printf("timer::init [error] Timer count %d exceeds maximum count of %d. [%lu ms]\n", timerCount, MAX_COUNT, millis());
+        #endif
+        return;
+    }
+    // Write the timer count to the timer
+    timer1_write(timerCount);
     // Set up the timer interrupt and enable the timer
     timer1_enable(TIM_DIV, TIM_EDGE, TIM_LOOP);
 #ifdef DEBUG
-    Serial.printf("timer::init Timer initialized with frequency %f Hz and timer count %d. [%lu ms]\n", timerInstance->_frequency, timerInstance->_timerCount, millis());
-    // if (timerInstance->_frequency < minFreq) {
-    //     Serial.printf("ESP8266TimerInterrupt: Timer frequency (%f) is below minimum frequency (%f)\n", _frequency, minFreq);
-    // }
-    Serial.printf("timer::init Timer count set to %d. [%lu ms]\n", timerInstance->_timerCount, millis());
-    if (timerInstance->_timerCount > MAX_COUNT) {
-        Serial.printf("timer::init [error] Timer count exceeds maximum count of %d. [%lu ms]\n", MAX_COUNT, millis());
-    }
+    Serial.printf("timer::init Timer has frequency %f Hz. [%lu ms]\n", TIM_FREQUENCY, millis());
+    Serial.printf("timer::init Timer count set to %d. [%lu ms]\n", timerCount, millis());
 #endif
 }
 
@@ -37,7 +38,6 @@ void timer::init(void) {
  * @param callback Callback function
  */
 void timer::interrupt(timer_callback callback) {
-    timer* timerInstance = timer::_getInstance();
     // Set the callback function
     if (callback == NULL) {
         #ifdef DEBUG
@@ -45,12 +45,12 @@ void timer::interrupt(timer_callback callback) {
         #endif
         return;
     }
-    timerInstance->_callback = callback;
-    // Attach the interrupt
-    timer1_attachInterrupt(timerInstance->_callback);
+    timer::_callback = callback;
 #ifdef DEBUG
-    Serial.printf("timer::interrupt Callback function set to %p. [%lu ms]\n", timerInstance->_callback, millis());
+    Serial.printf("timer::interrupt Callback function set to %p. [%lu ms]\n", timer::_callback, millis());
 #endif
+    // Attach the interrupt
+    timer1_attachInterrupt(timer::_callback);
 }
 /** Get the instance of the timer
  */
