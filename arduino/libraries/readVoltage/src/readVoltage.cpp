@@ -15,11 +15,11 @@ void readVoltage::init(void) {
 /** Read the voltage from the sensor
  */
 float readVoltage::readVoltageBat(void) {
-    uint8_t batValue = analogRead(VOLTAGE_PIN);
-    float_t voltage = batValue * (VOLTAGE_REF / 1023.0);
+    int batValue = analogRead(VOLTAGE_PIN);
+    float voltage = batValue * (VOLTAGE_REF / 1023.0);
   
 #ifdef DEBUG
-    Serial.printf("readVoltage::readVoltageBat Battery voltage:%.3f [%lu ms]\n", voltage, millis());
+    Serial.printf("readVoltage::readVoltageBat voltage:%.3f[V], batValue: %d[int] [%lu ms]\n", voltage, batValue, millis());
 #endif
     return voltage;
 }
@@ -27,7 +27,6 @@ float readVoltage::readVoltageBat(void) {
  * This function is used to test the readVoltage class.
  */
 void readVoltage::testReadVoltage() {
-    readVoltage voltageMonitor;
-    float voltage = voltageMonitor.readVoltageBat();
-    Serial.printf("readVoltage::testReadVoltage Test readVoltage: %.3f V\n", voltage);
+    float voltage = readVoltageBat() * VOLTAGE_DIVIDER;
+    Serial.printf("readVoltage::testReadVoltage Test readVoltage: %.3f[V]. [%lu ms]\n", voltage, millis());
 }

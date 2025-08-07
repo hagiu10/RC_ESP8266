@@ -1,7 +1,7 @@
 #include <ledControl.h>
 
 #ifdef DEBUG
-bool stateLeds = false; // Initialize the global variable
+bool stateLeds = off; // Initialize the global variable
 #endif
 /** Constructor
  */
@@ -23,7 +23,7 @@ void ledControl::init(void) {
  * @param led The led to be controlled
  * @param state The state of the led. 0 - off, 1 - on
  */
-void ledControl::setLed(uint8_t led, uint8_t state) {
+void ledControl::setLed(uint8_t led, bool state) {
     // Code to control the led
     setBitRegState(led, state);
 #ifdef DEBUG
@@ -42,13 +42,14 @@ ledControl* ledControl::_getInstance(void) {
  * This function tests leds using shift register.
  */
 void ledControl::testLeds() {
+#ifdef DEBUG
+    // testRegisterSN74HC595N();  // Test the shift register
     ledControl* ledControlInstance = ledControl::_getInstance();
     stateLeds = !stateLeds;
     ledControlInstance->setLed(LED1, stateLeds);
     ledControlInstance->setLed(LED2, stateLeds);
     ledControlInstance->setLed(LED3, stateLeds);
     ledControlInstance->setLed(LED4, stateLeds);
-#ifdef DEBUG
     Serial.printf("ledControl::testLeds Test leds and change state in %d. [%lu ms]\n",stateLeds, millis());
 #endif
 }

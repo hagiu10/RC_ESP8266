@@ -3,19 +3,22 @@
 #ifdef DEBUG
 bool incDutyCycleLed = true; // Initialize the global variable
 #endif
-
+listPins pwmSignal::_pinsList[MAX_NR_PINS]; // Initialize the static variable
+uint8_t pwmSignal::_nrPins = 0; // Initialize the static variable
+uint8_t pwmSignal::_nrInterrupts = 0; // Initialize the static variable
 /** Constructor
  */
 pwmSignal::pwmSignal() {
-    _nrPins = 0;
-    _nrInterrupts = 0;
-#ifdef DEBUG
-    Serial.printf("pwmSignal::pwmSignal Constructor. [%lu ms]\n", millis());
-#endif
+// #ifdef DEBUG
+//     Serial.printf("pwmSignal::pwmSignal Constructor. [%lu ms]\n", millis());
+// #endif
 }
 /** Initialize the pwmSignal
  */
 void pwmSignal::init(void) {
+    // Initialize the static variables
+    _nrPins = 0;
+    _nrInterrupts = 0;
     // Initialize periferal for pwm signal
 #ifdef DEBUG
     Serial.printf("pwmSignal::init Initialized. [%lu ms]\n", millis());
@@ -24,30 +27,25 @@ void pwmSignal::init(void) {
 /** Task function
  */
 void pwmSignal::pwmHandler() {
-    pwmSignal* pwmInstance = pwmSignal::_getInstance();
-    if (pwmInstance == nullptr) {
-        #ifdef DEBUG
-            Serial.printf("pwmSignal::pwmHandler [error] pwmInstance is NULL. [%lu ms]\n", millis());
-        #endif
-        return;
-    }
     // Reset state of all pins to HIGH
-    if (pwmInstance->_nrInterrupts >= PWM_PERIOD) {
-        for (uint8_t i = 0; i < pwmInstance->_nrPins; i++) {
-            digitalWrite(pwmInstance->_pins[i].pin, HIGH);
+    if (_nrInterrupts >= PWM_PERIOD) {
+        for (uint8_t i = 0; i < _nrPins; ++i) {
+            digitalWrite(_pinsList[i].pin, HIGH);
         }
-        pwmInstance->_nrInterrupts = 0; 
+        _nrInterrupts = 0;
         return;
     }
-    for (uint8_t i = 0; i < pwmInstance->_nrPins; i++) {
-        if (pwmInstance->_nrInterrupts >= pwmInstance->_pins[i].dutyCycle) {
-            digitalWrite(pwmInstance->_pins[i].pin, LOW);
+
+    // Minimize digitalWrite calls by only toggling pins that need to change
+    for (uint8_t i = 0; i < _nrPins; ++i) {
+        if (_nrInterrupts == _pinsList[i].dutyCycle) {
+            digitalWrite(_pinsList[i].pin, LOW);
         }
     }
-    pwmInstance->_nrInterrupts++;
+    ++_nrInterrupts;
 #ifdef DEBUG
     // It is not recommended to use Serial.printf in an interrupt service routine
-    // Serial.printf("pwmSignal::pwmHandler Number interupts _nrInterrupts = %d Task executed at [%lu ms]\n",pwmInstance->_nrInterrupts, millis());
+    // Serial.printf("pwmSignal::pwmHandler Number interupts _nrInterrupts = %d Task executed at [%lu ms]\n",_nrInterrupts, millis());
 #endif
 }
 /** Set duty cycle for a pin
@@ -55,7 +53,6 @@ void pwmSignal::pwmHandler() {
  * @param dutyCycle Duty cycle to be set
  */
 void pwmSignal::setDutyCycle(uint8_t pin, uint8_t dutyCycle) {
-    pwmSignal* pwmInstance = pwmSignal::_getInstance();
     bool status = false; // Asume pin is not in the list
     if (dutyCycle > PWM_MAX_DUTY_CYCLE) {
         #ifdef DEBUG
@@ -67,9 +64,9 @@ void pwmSignal::setDutyCycle(uint8_t pin, uint8_t dutyCycle) {
         _delPin(pin, dutyCycle/PWM_MAX_DUTY_CYCLE);
         return;
     } 
-    for (uint8_t i = 0; i < pwmInstance->_nrPins; i++) {
-        if (pwmInstance->_pins[i].pin == pin) {
-            pwmInstance->_pins[i].dutyCycle = dutyCycle;
+    for (uint8_t i = 0; i < _nrPins; i++) {
+        if (_pinsList[i].pin == pin) {
+            _pinsList[i].dutyCycle = dutyCycle;
             #ifdef DEBUG
                 Serial.printf("pwmSignal::setDutyCycle Pin %d set to %d%%. [%lu ms]\n", pin, dutyCycle, millis());
             #endif
@@ -82,13 +79,12 @@ void pwmSignal::setDutyCycle(uint8_t pin, uint8_t dutyCycle) {
  * @param pin Pin to get duty cycle
  */
 uint8_t pwmSignal::getDutyCycle(uint8_t pin) {
-    pwmSignal* pwmInstance = pwmSignal::_getInstance();
-    for (uint8_t i = 0; i < pwmInstance->_nrPins; i++) {
-        if (pwmInstance->_pins[i].pin == pin) {
+    for (uint8_t i = 0; i < _nrPins; i++) {
+        if (_pinsList[i].pin == pin) {
             #ifdef DEBUG
-                Serial.printf("pwmSignal::getDutyCycle Pin %d has duty cycle %d%%. [%lu ms]\n", pin, pwmInstance->_pins[i].dutyCycle, millis());
+                Serial.printf("pwmSignal::getDutyCycle Pin %d has duty cycle %d%%. [%lu ms]\n", pin, _pinsList[i].dutyCycle, millis());
             #endif
-            return pwmInstance->_pins[i].dutyCycle;
+            return _pinsList[i].dutyCycle;
         }
     }
 #ifdef DEBUG
@@ -101,36 +97,34 @@ uint8_t pwmSignal::getDutyCycle(uint8_t pin) {
  * @param dutyCycle Duty cycle to be set
  */
 void pwmSignal::_addPin(uint8_t pin, uint8_t dutyCycle) {
-    pwmSignal* pwmInstance = pwmSignal::_getInstance();
-    if (pwmInstance->_nrPins > MAX_NR_PINS) {
+    if (_nrPins >= MAX_NR_PINS) {
         #ifdef DEBUG
             Serial.printf("pwmSignal::_addPin [error] Maximum number of pins exceeded. [%lu ms]\n", millis());
         #endif
         return;
     }
-    // Add the new pin to the list
-    pwmInstance->_pins[_nrPins].pin = pin;
-    pwmInstance->_pins[_nrPins].dutyCycle = dutyCycle;
-    pwmInstance->_nrPins++; 
+    // Add the new pin to the list   
+    _pinsList[_nrPins].pin = pin;
+    _pinsList[_nrPins].dutyCycle = dutyCycle;
+    ++_nrPins; 
 #ifdef DEBUG
-    Serial.printf("pwmSignal::_addPin Pin %d added to list. [%lu ms]\n", pin, millis());
-    Serial.printf("pwmSignal::setDutyCycle Pin %d set to %d%%. [%lu ms]\n", pin, dutyCycle, millis());
+    Serial.printf("pwmSignal::_addPin Pin %d added to the list. [%lu ms]\n", pin, millis());
+    Serial.printf("pwmSignal::_addPin Pin %d was set to %d%%. [%lu ms]\n", pin, dutyCycle, millis());
 #endif
 }
 /** Delete pin from the list of pins
  * @param pin Pin to be deleted
  */
 void pwmSignal::_delPin(uint8_t pin, uint8_t state) {
-    pwmSignal* pwmInstance = pwmSignal::_getInstance();
     bool findPin = false; // Asume pin is not in the list
-    for (uint8_t i = 0; i < pwmInstance->_nrPins; i++) {
-        if (pwmInstance->_pins[i].pin == pin) {
+    for (uint8_t i = 0; i < _nrPins; i++) {
+        if (_pinsList[i].pin == pin) {
             findPin = true; // Pin is in the list
             // Shift the pins in the list to delete the pin
-            for (uint8_t j = i; j < pwmInstance->_nrPins - 1; j++) {
-                pwmInstance->_pins[j] = _pins[j + 1];
+            for (uint8_t j = i; j < _nrPins - 1; j++) {
+                _pinsList[j] = _pinsList[j + 1];
             }
-            pwmInstance->_nrPins--;
+            _nrPins--;
             // Set the state of the pin
             digitalWrite(pin, state);
             break;
@@ -159,13 +153,14 @@ pwmSignal* pwmSignal::_getInstance(void) {
  * This function is called by the RTOS to test the duty cycle of the LED
  */
 void pwmSignal::testDutyCycle() {
-    pwmSignal* pwmInstance = pwmSignal::_getInstance();
-    static uint8_t dutyCycle = pwmInstance->getDutyCycle(LED_PIN);
+#ifdef DEBUG
+    static uint8_t dutyCycle = getDutyCycle(LED_PIN);
     if (dutyCycle == PWM_MAX_DUTY_CYCLE) {
       incDutyCycleLed = false;
     } else if (dutyCycle == PWM_MIN_DUTY_CYCLE) {
       incDutyCycleLed = true;
     }
     dutyCycle += incDutyCycleLed ? 1 : -1;
-    pwmInstance->setDutyCycle(LED_PIN, dutyCycle);
+    setDutyCycle(LED_PIN, dutyCycle);
+#endif
 }

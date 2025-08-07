@@ -4,6 +4,7 @@ from cli.install import install
 from cli.flashing import flashing
 import sys
 
+
 def print_help():
         help_text = """
         Usage: rc.py [OPTIONS]
@@ -32,7 +33,8 @@ def rc():
     if '--open-serial-terminal' in sys.argv or '-o' in sys.argv:
         flashing.open_serial_terminal_cmd()
     if '--install-arduino-cli' in sys.argv or '-i' in sys.argv:
-        install.install_cmd()
+        install.install_ard_cli()
+
 
 if __name__ == "__main__":
     rc()

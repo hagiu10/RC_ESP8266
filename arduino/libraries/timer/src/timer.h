@@ -5,6 +5,7 @@
 
 #define NR_TIMERS      1
 #define MAX_COUNT      8388607      // ESP8266 only has one usable timer1, max count is only 8,388,607.
+#define TIM_FREQUENCY  100000.0f    // 1 / 10us = 100,000 Hz (float)
 
 typedef void (*timer_callback)  ();
 
@@ -37,12 +38,11 @@ typedef void (*timer_callback)  ();
 // Function prototypes
 class timer {
   private:
-    timer_callback _callback;
-    float _frequency;
-    uint32_t _timerCount;
+    static timer_callback _callback;
+    static timer* _getInstance(void);
   public:
     timer();
-    void init(void);
-    void interrupt(timer_callback callback);
+    static void init(void);
+    static void interrupt(timer_callback callback);
 };
 #endif // TIMER_H

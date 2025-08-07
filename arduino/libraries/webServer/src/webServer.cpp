@@ -34,7 +34,7 @@ void webServer::init(void) {
  */
 void webServer::loadWebPage(void) {
     // Load the web page
-    server.on("/", HTTP_GET, [this]() {
+    server.on("/", HTTP_GET, []() {
         server.send_P(200, "text/html", webPage_html);
     });
     server.begin(); 

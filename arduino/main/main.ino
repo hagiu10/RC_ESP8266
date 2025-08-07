@@ -4,14 +4,8 @@
 #include <webServer.h>
 #include <webSocketsNew.h>
 #include <rtos.h>
-
-motorControl motorsDrive; // create an instance of the controlMotor class
-sn74hc595n multiplexPins; // create an instance of the sn74hc595n class
-readVoltage voltageMonitor; // create an instance of the readVoltage class
-webServer serverLoad; // create an instance of the webServer class
-webSocket webSocketLoad; // create an instance of the webSocket class
-rtos rtosDrive; // create an instance of the rtos class
-pwmSignal pwmDrive; // create an instance of the pwmSignal class
+#include <ledControl.h>
+#include <sn74hc595n.h>
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -23,22 +17,31 @@ void setup() {
   }
   Serial.println("Starting...\n");
 #endif
-  motorsDrive.init();
-  multiplexPins.init();
-  voltageMonitor.init();
-  serverLoad.init();
-  serverLoad.loadWebPage();
-  webSocketLoad.init();
-  rtosDrive.init();
-  rtosDrive.addTask(pwmDrive.testDutyCycle, 100000);
-  // rtosDrive.addTask(motorsDrive.testMotors, 200000);
-  // rtosDrive.addTask(voltageMonitor.testReadVoltage, 1000000);
-  rtosDrive.addTask(serverLoad.webServerHandler, 10000);
-  rtosDrive.addTask(webSocketLoad.webSocketHandler, 10000);
+  // voltageMonitor.init();
+  webServer::init();
+  webServer::loadWebPage();
+  webSocket::init();
+  rtos::init();
+  ledControl::init();
+  sn74hc595n::init();
+  motorControl::init();
+  readVoltage::init();
+  rtos::addTask("readVoltage", readVoltage::testReadVoltage, 10e6);
+  rtos::removeTask("readVoltage");
+  rtos::addTask("readVoltage", readVoltage::testReadVoltage, 100);
+  rtos::removeTask("readVoltage");
+  rtos::addTask("readVoltage", readVoltage::testReadVoltage, 10e5);
+  // rtos::addTask("sn74hc595n", sn74hc595n::testRegisterSN74HC595N, 10e6);
+  // rtos::addTask("ledControl", ledControl::testLeds, 10e6);
+  // rtos::addTask("pwmSignal", pwmSignal::testDutyCycle, 10e5);
+  // rtos::addTask("motorControl",motorControl::testMotors, 10e3);
+  // rtosDrive.addTask(voltageMonitor.testReadVoltage, 10e6);
+  // rtos::addTask("serverLoad", webServer::webServerHandler, 10e4);
+  // rtos::addTask("webSocketLoad", webSocket::webSocketHandler, 10e4);
   delay(100);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  rtosDrive.executeTasks();
+  rtos::executeTasks();
 }
