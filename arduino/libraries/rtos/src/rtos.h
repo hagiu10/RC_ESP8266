@@ -46,7 +46,7 @@ class rtos: private timer, private pwmSignal {
     static void addTask(const char taskName[],
                 function_callback pfuncExec, 
                 u_long cycleTimeRun_us, 
-                uint8_t state = TASK_WAITING);
+                uint8_t state = TASK_BLOCKED);
     static void removeTask(const char taskName[]);
     static void changeStateTask(String taskName, uint8_t state);
     static void executeTasks(void);  

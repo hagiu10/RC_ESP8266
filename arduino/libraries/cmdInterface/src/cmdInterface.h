@@ -10,7 +10,11 @@
           "  stop 'teskName' - Stop a task\n" \
           "  help - Show this help message\n" \
           "  List of task's names:\n" \
-          "   - blinkLed\n"
+          "   - pwmSignal\n" \
+          "   - readVoltage\n" \
+          "   - sn74hc595n\n" \
+          "   - ledControl\n" \
+          "   - motorControl"
 
 // Function prototypes
 class cmdInterface: private rtos {
